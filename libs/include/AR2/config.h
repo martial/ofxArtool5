@@ -107,8 +107,8 @@ extern "C" {
 
 
 /* tracking.c */
-#define    AR2_TRACKING_SURFACE_MAX                 10          // Maximum number of surfaces per surface set (i.e. maximum number of discrete surfaces with fixed relationship to each other able to be combined into a surface set.)
-#define    AR2_TRACKING_CANDIDATE_MAX               200         // Maximum number of candidate feature points.
+#define    AR2_TRACKING_SURFACE_MAX                 12          // Maximum number of surfaces per surface set (i.e. maximum number of discrete surfaces with fixed relationship to each other able to be combined into a surface set.)
+#define    AR2_TRACKING_CANDIDATE_MAX               400         // Maximum number of candidate feature points.
 
 /* tracking2d.c */
 #define AR2_DEFAULT_TRACKING_SD_THRESH              5.0F

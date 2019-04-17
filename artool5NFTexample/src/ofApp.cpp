@@ -6,7 +6,7 @@ void ofApp::setup(){
     ofSetFrameRate(60);
     
     cam.initGrabber(640, 480);
-    art.setup(ofVec2f(640,480),ofVec2f(640,480));
+    art.setup(ofVec2f(640,480),ofVec2f(640,480), OF_PIXELS_BGR, "../Resources/camera_para.dat", "../Resources/config_horses.dat" );
     
     ofAddListener(art.evNewMarker, this, &ofApp::onNewMarker);
     ofAddListener(art.evLostMarker, this, &ofApp::onLostMarker);
@@ -36,11 +36,9 @@ void ofApp::draw(){
 }
 
 void ofApp::onNewMarker(int & mId){
-    cout<<"New Marker found!"<<endl;
 }
 
 void ofApp::onLostMarker(int & mId){
-    cout<<"Marker lost!"<<endl;
 }
 
 //--------------------------------------------------------------

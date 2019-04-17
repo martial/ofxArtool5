@@ -22,9 +22,9 @@ class ofApp : public ofBaseApp{
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
     
-    void onNewMarker(int & mId);
-    void onLostMarker(int & mId);
-	
-    ofVideoGrabber cam;
-    ofxArtool5::NftTracker art;
+        void onNewMarker(int & mId);
+        void onLostMarker(int & mId);
+    
+        ofVideoGrabber cam;
+        ofxArtool5::NftTracker art;
 };

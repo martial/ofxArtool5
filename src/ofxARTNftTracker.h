@@ -35,7 +35,7 @@ namespace ofxArtool5 {
         void nullArtPointers();
         void cleanup();
         
-        bool setup(ofVec2f _camSize, ofVec2f _viewportSize, ofPixelFormat pf=OF_PIXELS_BGR, string pthCamParam="ARTdata/camera_para.dat", string pthMarkerData="ARTdata/markers.dat", string pthCustomDat="ARTdata/custom.dat");
+        bool setup(ofVec2f _camSize, ofVec2f _viewportSize, ofPixelFormat pf=OF_PIXELS_BGR, string pthCamParam="../Resources/camera_para.dat", string pthMarkerData="../Resources/markers.dat", string pthCustomDat="../Resources/custom.dat");
         
         void update(ARUint8 * arPix);
         template<class T> inline void update(ofBaseHasPixels_<T> & ofImg){GenericTracker::update(ofImg);}

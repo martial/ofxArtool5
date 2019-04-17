@@ -65,7 +65,7 @@ int NftTracker::unloadNFTData(){
     j = 0;
     for (i = 0; i < surfaceSetCount; i++) {
         if (j == 0) ARLOGi("Unloading NFT tracking surfaces.\n");
-        ar2FreeSurfaceSet(&surfaceSet[i]); // Also sets surfaceSet[i] to NULL.
+        //ar2FreeSurfaceSet(&surfaceSet[i]); // Also sets surfaceSet[i] to NULL.
         j++;
     }
     if (j > 0) ARLOGi("Unloaded %d NFT tracking surfaces.\n", j);
@@ -75,6 +75,7 @@ int NftTracker::unloadNFTData(){
 }
 
 bool NftTracker::loadNFTData(string pthCustomDat){
+    
     int i;
     KpmRefDataSet *refDataSet;
     
@@ -89,6 +90,7 @@ bool NftTracker::loadNFTData(string pthCustomDat){
     refDataSet = NULL;
     
     for (i = 0; i < markersNFTCount; i++) {
+        
         // Load KPM data.
         KpmRefDataSet  *refDataSet2;
         ARLOGi("Reading %s.fset3\n", markersNFT[i].datasetPathname);
@@ -101,27 +103,25 @@ bool NftTracker::loadNFTData(string pthCustomDat){
         ARLOGi("  Assigned page no. %d.\n", surfaceSetCount);
         if (kpmChangePageNoOfRefDataSet(refDataSet2, KpmChangePageNoAllPages, surfaceSetCount) < 0) {
             ARLOGe("Error: kpmChangePageNoOfRefDataSet\n");
-            return false;
+            exit(-1);
         }
         if (kpmMergeRefDataSet(&refDataSet, &refDataSet2) < 0) {
             ARLOGe("Error: kpmMergeRefDataSet\n");
-            return false;
+            exit(-1);
         }
         ARLOGi("  Done.\n");
         
         // Load AR2 data.
         ARLOGi("Reading %s.fset\n", markersNFT[i].datasetPathname);
-        //if ((surfaceSet[surfaceSetCount] = ar2ReadSurfaceSet(markersNFT[i].datasetPathname, "fset", NULL)) == NULL ) {
-        //    ARLOGe("Error reading data from %s.fset\n", markersNFT[i].datasetPathname);
-        //}
         
-        if((surfaceSet[surfaceSetCount]=loadSurfaceSetData(ofToDataPath(pthCustomDat)))==NULL){
+        string dataPath = ofToString(markersNFT[i].datasetPathname) + ".dat";
+        if((surfaceSet[surfaceSetCount] = loadSurfaceSetData(dataPath))==NULL){
             ARLOGe("Error reading data from custom.dat\n", markersNFT[i].datasetPathname);
         }
         ARLOGi("  Done.\n");
         
-        surfaceSet[surfaceSetCount]->surface->markerSet=NULL;
-        surfaceSet[surfaceSetCount]->surface->jpegName=NULL;
+        //surfaceSet[surfaceSetCount]->surface->markerSet=NULL;
+        //surfaceSet[surfaceSetCount]->surface->jpegName=NULL;
         
         surfaceSetCount++;
         if (surfaceSetCount == PAGES_MAX) break;
@@ -173,12 +173,17 @@ bool NftTracker::initNFT(ARParamLT *cparamLT, AR_PIXEL_FORMAT pixFormat){
     } else {
         ARLOGi("Using NFT tracking settings for more than one CPU.\n");
         ar2SetTrackingThresh(ar2Handle, 5.0);
+        //arSetLabelingThreshMode(ar2Handle, AR_LABELING_THRESH_MODE_AUTO_BRACKETING);
         ar2SetSimThresh(ar2Handle, 0.50);
         ar2SetSearchFeatureNum(ar2Handle, 16);
         ar2SetSearchSize(ar2Handle, 12);
         ar2SetTemplateSize1(ar2Handle, 6);
         ar2SetTemplateSize2(ar2Handle, 6);
     }
+    
+    //ar2SetBlurMethod(ar2Handle,AR2_ADAPTIVE_BLUR);
+    
+    
     
     return true;
 }
@@ -212,7 +217,7 @@ bool NftTracker::setup(ofVec2f _camSize, ofVec2f _viewportSize, ofPixelFormat pf
     arUtilTimerReset();
     
     //load markers
-    const char * cPathMarkerParam = ofToDataPath(pthMarkerData).c_str();
+    const char * cPathMarkerParam = pthMarkerData.c_str();
     newMarkers(cPathMarkerParam, &markersNFT, &markersNFTCount);
     if (!markersNFTCount) {
         ofLogError("ofxArtool5::setup","Error loading markers from config. file "+pthMarkerData);
@@ -239,7 +244,7 @@ bool NftTracker::setupCamera(string pthCamParam, ofVec2f _camSize, ofVec2f _view
     ARParam cparam;
     AR_PIXEL_FORMAT pixFormat = ofxArtool5::toAR(pf);
     
-    const char * cPathCamParam = ofToDataPath(pthCamParam).c_str();
+    const char * cPathCamParam = pthCamParam.c_str();
     
     
     camSize=_camSize;
@@ -269,90 +274,104 @@ bool NftTracker::setupCamera(string pthCamParam, ofVec2f _camSize, ofVec2f _view
 void NftTracker::update(ARUint8 * arPix){
     
     updateMarkerDetection(arPix);
-    
     updateMarkers();
+    
 }
 
 void NftTracker::updateMarkerDetection(ARUint8 *arPix){
+    
     if(threadHandle){
-        float err;
-        int ret;
-        int pageNo;
         
-        if(detectedPage==-2){
-            trackingInitStart(threadHandle, arPix);
-            detectedPage = int(PAGE_INITED_OK);
-        }else if(detectedPage==-1){
-            ret=trackingInitGetResult(threadHandle, trackingTrans, &pageNo);
-            if(ret==1){
-                if(pageNo>=0&&pageNo<surfaceSetCount){
-                    ARLOGd("Detected page %d\n",pageNo);
-                    detectedPage=pageNo;
+        // Perform NFT tracking.
+        float            err;
+        int              ret;
+        int              pageNo;
+        
+        if( detectedPage == -2 ) {
+            trackingInitStart( threadHandle, arPix );
+            detectedPage = -1;
+        }
+        if( detectedPage == -1 ) {
+            ret = trackingInitGetResult( threadHandle, trackingTrans, &pageNo);
+            if( ret == 1 ) {
+                if (pageNo >= 0 && pageNo < surfaceSetCount) {
+                    ARLOGd("Detected page %d.\n", pageNo);
+                    detectedPage = pageNo;
                     ar2SetInitTrans(surfaceSet[detectedPage], trackingTrans);
-                }else{
-                    ARLOGe("Detected BAD page %d\n",pageNo);
-                    detectedPage=int(PAGE_NOT_INITED);
+                } else {
+                    ARLOGe("Detected bad page %d.\n", pageNo);
+                    detectedPage = -2;
                 }
-            }else if(ret<0){
-                ARLOGd("NO page detected\n");
-                detectedPage=int(PAGE_NOT_INITED);
-            }
-        }else if(detectedPage>=0 && detectedPage<surfaceSetCount){
-            int ee = ar2Tracking(ar2Handle, surfaceSet[detectedPage], arPix, trackingTrans, &err);
-            if(ee<0){
-                ARLOGd("Tracking lost: %d\n",ee);
-                detectedPage=int(PAGE_NOT_INITED);
-            }else{
-                ARLOGd("Tracked page %d (max %d)\n",detectedPage,surfaceSetCount-1);
+            } else if( ret < 0 ) {
+                ARLOGd("No page detected.\n");
+                detectedPage = -2;
             }
         }
-    }else{
+        if( detectedPage >= 0 && detectedPage < surfaceSetCount) {
+            if( ar2Tracking(ar2Handle, surfaceSet[detectedPage], arPix, trackingTrans, &err) < 0 ) {
+                ARLOGd("Tracking lost.\n");
+                detectedPage = -2;
+            } else {
+                ARLOGd("Tracked page %d (max %d).\n", detectedPage, surfaceSetCount - 1);
+            }
+        }
+        
+    }  else{
+            
         ARLOGe("Error in ARToolkit threadHandle\n");
         detectedPage=int(PAGE_NOT_INITED);
     }
+        
+ 
+        
 }
 
 void NftTracker::updateMarkers(){
-    for(int i=0;i<markersNFTCount;i++){
+    
+    // Update markers.
+    for (int i = 0; i < markersNFTCount; i++) {
         markersNFT[i].validPrev = markersNFT[i].valid;
-        if(markersNFT[i].pageNo>=0 && markersNFT[i].pageNo==detectedPage){
-            markersNFT[i].valid=true;
-            for(int j=0;j<3;j++){
-                for(int k=0;k<4;k++){
-                    markersNFT[i].trans[j][k]=trackingTrans[j][k];
-                }
-            }
-        }else{
-            markersNFT[i].valid=false;
+        if (markersNFT[i].pageNo >= 0 && markersNFT[i].pageNo == detectedPage) {
+            markersNFT[i].valid = TRUE;
+            for (int j = 0; j < 3; j++) for (int k = 0; k < 4; k++) markersNFT[i].trans[j][k] = trackingTrans[j][k];
         }
-        
-        if(markersNFT[i].valid){
-            //filter pose estimate
-            if(markersNFT[i].ftmi){
-                if(arFilterTransMat(markersNFT[i].ftmi, markersNFT[i].trans, !markersNFT[i].validPrev)<0){
-                    ARLOGe("ERROR: arFilterTransMat error with marker %d\n",i);
+        else markersNFT[i].valid = FALSE;
+        if (markersNFT[i].valid) {
+            
+            // Filter the pose estimate.
+            if (markersNFT[i].ftmi) {
+                if (arFilterTransMat(markersNFT[i].ftmi, markersNFT[i].trans, !markersNFT[i].validPrev) < 0) {
+                    ARLOGe("arFilterTransMat error with marker %d.\n", i);
                 }
             }
             
-            if(!markersNFT[i].validPrev){
-                //new marker!
+            if (!markersNFT[i].validPrev) {
+                // Marker has become visible, tell any dependent objects.
+                // --->
                 bFound = true;
                 selectedId=i;
                 ofNotifyEvent(evNewMarker, i);
+                
             }
             
-            //new pose, set it
-            arglCameraViewRH(markersNFT[i].trans, markersNFT[i].pose.T, viewScaleFactor);
-        }else{
-            if(markersNFT[i].validPrev){
-                //marker lost!
+            // We have a new pose, so set that.
+            arglCameraViewRH((const ARdouble (*)[4])markersNFT[i].trans, markersNFT[i].pose.T, viewScaleFactor);
+            // Tell any dependent objects about the update.
+            // --->
+            
+        } else {
+            
+            if (markersNFT[i].validPrev) {
+                
                 bFound = false;
                 selectedId=-1;
                 ofNotifyEvent(evLostMarker, i);
+                
             }
         }
-        
     }
+    
+   
 }
 
 //DRAW----------
