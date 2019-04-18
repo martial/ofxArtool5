@@ -1,11 +1,8 @@
 ofxArtool5
 =====================================
 
-OpenFrameworks addon wrapping the functionalities of ArtoolKit 5.
-At the moment it provides :
-
-- Marker based AR
-- NFT based AR
+OpenFrameworks addon wrapping the functionalities of ArtoolKit 5.4
+This fork provides only NFT based AR
 
 Licence
 -------
@@ -19,7 +16,7 @@ Copy to your openFrameworks/addons folder.
 
 Compatibility
 ------------
-openFrameworks 009.x 
+openFrameworks 1.01
 
 
 Known issues
