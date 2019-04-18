@@ -56,22 +56,27 @@ common:
 	# specify here any files that need to be copied, you can use wildcards like * and ?
 	# ADDON_DATA =
 
-    ADDON_LIBS =
-    ADDON_LIBS += libs/lib/libAR.a
-    ADDON_LIBS += libs/lib/libAR2.a
-    ADDON_LIBS += libs/lib/libARgsub_lite.a
-    ADDON_LIBS += libs/lib/libARgsub.a
-    ADDON_LIBS += libs/lib/libARICP.a
-    ADDON_LIBS += libs/lib/libARMulti.a
-    ADDON_LIBS += libs/lib/libARosg.a
-    ADDON_LIBS += libs/lib/libAR.a
-    ADDON_LIBS += libs/lib/libARUtil.a
-    ADDON_LIBS += libs/lib/libARvideo.a
-    ADDON_LIBS += libs/lib/libKPM.a
+
 
 	# when parsing the file system looking for libraries exclude this for all or
 	# a specific platform
 	# ADDON_LIBS_EXCLUDE =
+
+osx:
+
+		ADDON_LIBS =
+		ADDON_LIBS += libs/lib/osx/libAR.a
+		ADDON_LIBS += libs/lib/osx/libAR2.a
+		ADDON_LIBS += libs/lib/osx/libARgsub_lite.a
+		ADDON_LIBS += libs/lib/osx/libARgsub.a
+		ADDON_LIBS += libs/lib/osx/libARICP.a
+		ADDON_LIBS += libs/lib/osx/libARMulti.a
+		ADDON_LIBS += libs/lib/osx/libARosg.a
+		ADDON_LIBS += libs/lib/osx/libAR.a
+		ADDON_LIBS += libs/lib/osx/libARUtil.a
+		ADDON_LIBS += libs/lib/osx/libARvideo.a
+		ADDON_LIBS += libs/lib/osx/libKPM.a
+
 
 linux64:
 
@@ -98,4 +103,3 @@ emscripten:
 
 
 ios:
-

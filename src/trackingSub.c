@@ -181,14 +181,10 @@ static void *trackingInitMain( THREAD_HANDLE_T *threadHandle )
     for(;;) {
         if( threadStartWait(threadHandle) < 0 ) break;
 
-        ARLOGe("go go go.\n");
-
         kpmMatching(kpmHandle, imageLumaPtr);
         trackingInitHandle->flag = 0;
         for( i = 0; i < kpmResultNum; i++ ) {
             
-            ARLOGe("go go go.\n");
-
             if( kpmResult[i].camPoseF != 0 ) continue;
             ARLOGd("kpmGetPose OK.\n");
 
