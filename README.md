@@ -12,7 +12,9 @@ naus3a@gmail.com
 
 Installation
 ------------
-Copy to your openFrameworks/addons folder.
+Copy to your openFrameworks/addons folder and use to project generator.    
+For some reason, you have to import you data files into your Resources folder for osx.   
+
 
 Compatibility
 ------------
