@@ -16,6 +16,9 @@ void ofApp::setup(){
 void ofApp::update(){
     cam.update();
     if(cam.isFrameNew()){
+        
+     
+        
         art.update(cam);
     }
 }

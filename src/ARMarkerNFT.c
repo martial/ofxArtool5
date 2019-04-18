@@ -1,4 +1,4 @@
-/*
+/* 
  *  ARMarkerNFT.c
  *  ARToolKit5
  *
@@ -93,9 +93,9 @@ void newMarkers(const char *markersConfigDataFilePathC, ARMarkerNFT **markersNFT
     int            i;
     char           markersConfigDataDirC[MAXPATHLEN];
     size_t         markersConfigDataDirCLen;
-    
+
     if (!markersConfigDataFilePathC || markersConfigDataFilePathC[0] == '\0' || !markersNFT_out || !markersNFTCount_out) return;
-    
+        
     // Load the marker data file.
     ARLOGd("Opening marker config. data file from path '%s'.\n", markersConfigDataFilePathC);
     arUtilGetDirectoryNameFromPath(markersConfigDataDirC, markersConfigDataFilePathC, MAXPATHLEN, 1); // 1 = add '/' at end.
@@ -117,7 +117,7 @@ void newMarkers(const char *markersConfigDataFilePathC, ARMarkerNFT **markersNFT
     markersNFTCount = tempI;
     
     ARLOGd("Reading %d marker configuration(s).\n", markersNFTCount);
-    
+
     for (i = 0; i < markersNFTCount; i++) {
         
         // Read marker name.
@@ -170,14 +170,14 @@ void newMarkers(const char *markersConfigDataFilePathC, ARMarkerNFT **markersNFT
     
     // If not all markers were read, an error occurred.
     if (i < markersNFTCount) {
-        
+    
         // Clean up.
         for (; i >= 0; i--) {
             if (markersNFT[i].datasetPathname)  free(markersNFT[i].datasetPathname);
             if (markersNFT[i].ftmi) arFilterTransMatFinal(markersNFT[i].ftmi);
         }
         free(markersNFT);
-        
+                
         *markersNFTCount_out = 0;
         *markersNFT_out = NULL;
         return;

@@ -7,6 +7,7 @@
 
 #include "ofxARTNftTracker.h"
 
+
 using namespace ofxArtool5;
 
 
@@ -148,8 +149,14 @@ bool NftTracker::loadNFTData(string pthCustomDat){
 bool NftTracker::initNFT(ARParamLT *cparamLT, AR_PIXEL_FORMAT pixFormat){
     ARLOGd("Initialising NFT.\n");
     
+    lumaInfo = arVideoLumaInit(640, 480, pixFormat);
+    if (!lumaInfo) {
+        ARLOGe("Error: unable to initialise luma conversion.\n");
+        
+    }
+    
     // KPM init.
-    kpmHandle = kpmCreateHandle(cparamLT, pixFormat);
+    kpmHandle = kpmCreateHandle(cparamLT);
     if (!kpmHandle) {
         ARLOGe("Error: kpmCreateHandle.\n");
         return false;
@@ -214,7 +221,6 @@ bool NftTracker::setup(ofVec2f _camSize, ofVec2f _viewportSize, ofPixelFormat pf
 		return false;
 	}
     
-    arUtilTimerReset();
     
     //load markers
     const char * cPathMarkerParam = pthMarkerData.c_str();
@@ -273,12 +279,14 @@ bool NftTracker::setupCamera(string pthCamParam, ofVec2f _camSize, ofVec2f _view
 //UPDATE------------
 void NftTracker::update(ARUint8 * arPix){
     
-    updateMarkerDetection(arPix);
+    // convert to Luma 
+    ARUint8 * luma = arVideoLuma(lumaInfo, arPix);
+    updateMarkerDetection(luma,arPix);
     updateMarkers();
     
 }
 
-void NftTracker::updateMarkerDetection(ARUint8 *arPix){
+void NftTracker::updateMarkerDetection(ARUint8 * luma, ARUint8 * buffer){
     
     if(threadHandle){
         
@@ -288,31 +296,31 @@ void NftTracker::updateMarkerDetection(ARUint8 *arPix){
         int              pageNo;
         
         if( detectedPage == -2 ) {
-            trackingInitStart( threadHandle, arPix );
+            trackingInitStart( threadHandle, luma );
             detectedPage = -1;
         }
         if( detectedPage == -1 ) {
             ret = trackingInitGetResult( threadHandle, trackingTrans, &pageNo);
             if( ret == 1 ) {
                 if (pageNo >= 0 && pageNo < surfaceSetCount) {
-                    ARLOGd("Detected page %d.\n", pageNo);
+                    //ARLOGe("Detected page %d.\n", pageNo);
                     detectedPage = pageNo;
                     ar2SetInitTrans(surfaceSet[detectedPage], trackingTrans);
                 } else {
-                    ARLOGe("Detected bad page %d.\n", pageNo);
+                    //ARLOGe("Detected bad page %d.\n", pageNo);
                     detectedPage = -2;
                 }
             } else if( ret < 0 ) {
-                ARLOGd("No page detected.\n");
+                //ARLOGe("No page detected.\n");
                 detectedPage = -2;
             }
         }
         if( detectedPage >= 0 && detectedPage < surfaceSetCount) {
-            if( ar2Tracking(ar2Handle, surfaceSet[detectedPage], arPix, trackingTrans, &err) < 0 ) {
-                ARLOGd("Tracking lost.\n");
+            if( ar2Tracking(ar2Handle, surfaceSet[detectedPage], buffer, trackingTrans, &err) < 0 ) {
+               // ARLOGe("Tracking lost.\n");
                 detectedPage = -2;
             } else {
-                ARLOGd("Tracked page %d (max %d).\n", detectedPage, surfaceSetCount - 1);
+                ARLOGe("Tracked page %d (max %d).\n", detectedPage, surfaceSetCount - 1);
             }
         }
         

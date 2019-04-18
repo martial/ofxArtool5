@@ -55,7 +55,7 @@
 
 typedef struct {
     KpmHandle              *kpmHandle;      // KPM-related data.
-    ARUint8                *imagePtr;       // Pointer to image being tracked.
+    ARUint8                *imageLumaPtr;   // Pointer to image being tracked.
     int                     imageSize;      // Bytes per image.
     float                   trans[3][4];    // Transform containing pose of tracked image.
     int                     page;           // Assigned page number of tracked image.
@@ -68,7 +68,7 @@ static void *trackingInitMain( THREAD_HANDLE_T *threadHandle );
 int trackingInitQuit( THREAD_HANDLE_T **threadHandle_p )
 {
     TrackingInitHandle  *trackingInitHandle;
-    
+
     if (!threadHandle_p)  {
         ARLOGe("trackingInitQuit(): Error: NULL threadHandle_p.\n");
         return (-1);
@@ -78,7 +78,7 @@ int trackingInitQuit( THREAD_HANDLE_T **threadHandle_p )
     threadWaitQuit( *threadHandle_p );
     trackingInitHandle = (TrackingInitHandle *)threadGetArg(*threadHandle_p);
     if (trackingInitHandle) {
-        free( trackingInitHandle->imagePtr );
+        free( trackingInitHandle->imageLumaPtr );
         free( trackingInitHandle );
     }
     threadFree( threadHandle_p );
@@ -89,7 +89,7 @@ THREAD_HANDLE_T *trackingInitInit( KpmHandle *kpmHandle )
 {
     TrackingInitHandle  *trackingInitHandle;
     THREAD_HANDLE_T     *threadHandle;
-    
+
     if (!kpmHandle) {
         ARLOGe("trackingInitInit(): Error: NULL KpmHandle.\n");
         return (NULL);
@@ -98,19 +98,19 @@ THREAD_HANDLE_T *trackingInitInit( KpmHandle *kpmHandle )
     trackingInitHandle = (TrackingInitHandle *)malloc(sizeof(TrackingInitHandle));
     if( trackingInitHandle == NULL ) return NULL;
     trackingInitHandle->kpmHandle = kpmHandle;
-    trackingInitHandle->imageSize = kpmHandleGetXSize(kpmHandle) * kpmHandleGetYSize(kpmHandle) * arUtilGetPixelSize(kpmHandleGetPixelFormat(kpmHandle));
-    trackingInitHandle->imagePtr  = (ARUint8 *)malloc(trackingInitHandle->imageSize);
+    trackingInitHandle->imageSize = kpmHandleGetXSize(kpmHandle) * kpmHandleGetYSize(kpmHandle);
+    trackingInitHandle->imageLumaPtr  = (ARUint8 *)malloc(trackingInitHandle->imageSize);
     trackingInitHandle->flag      = 0;
-    
+
     threadHandle = threadInit(0, trackingInitHandle, trackingInitMain);
     return threadHandle;
 }
 
-int trackingInitStart( THREAD_HANDLE_T *threadHandle, ARUint8 *imagePtr )
+int trackingInitStart( THREAD_HANDLE_T *threadHandle, ARUint8 *imageLumaPtr )
 {
     TrackingInitHandle     *trackingInitHandle;
-    
-    if (!threadHandle || !imagePtr) {
+
+    if (!threadHandle || !imageLumaPtr) {
         ARLOGe("trackingInitStart(): Error: NULL threadHandle or imagePtr.\n");
         return (-1);
     }
@@ -120,9 +120,9 @@ int trackingInitStart( THREAD_HANDLE_T *threadHandle, ARUint8 *imagePtr )
         ARLOGe("trackingInitStart(): Error: NULL trackingInitHandle.\n");
         return (-1);
     }
-    memcpy( trackingInitHandle->imagePtr, imagePtr, trackingInitHandle->imageSize );
+    memcpy( trackingInitHandle->imageLumaPtr, imageLumaPtr, trackingInitHandle->imageSize );
     threadStartSignal( threadHandle );
-    
+
     return 0;
 }
 
@@ -130,7 +130,7 @@ int trackingInitGetResult( THREAD_HANDLE_T *threadHandle, float trans[3][4], int
 {
     TrackingInitHandle     *trackingInitHandle;
     int  i, j;
-    
+
     if (!threadHandle || !trans || !page)  {
         ARLOGe("trackingInitGetResult(): Error: NULL threadHandle or trans or page.\n");
         return (-1);
@@ -145,7 +145,7 @@ int trackingInitGetResult( THREAD_HANDLE_T *threadHandle, float trans[3][4], int
         *page = trackingInitHandle->page;
         return 1;
     }
-    
+
     return -1;
 }
 
@@ -155,10 +155,10 @@ static void *trackingInitMain( THREAD_HANDLE_T *threadHandle )
     KpmHandle              *kpmHandle;
     KpmResult              *kpmResult = NULL;
     int                     kpmResultNum;
-    ARUint8                *imagePtr;
+    ARUint8                *imageLumaPtr;
     float                  err;
     int                    i, j, k;
-    
+
     if (!threadHandle) {
         ARLOGe("Error starting tracking thread: empty THREAD_HANDLE_T.\n");
         return (NULL);
@@ -169,23 +169,29 @@ static void *trackingInitMain( THREAD_HANDLE_T *threadHandle )
         return (NULL);
     }
     kpmHandle          = trackingInitHandle->kpmHandle;
-    imagePtr           = trackingInitHandle->imagePtr;
-    if (!kpmHandle || !imagePtr) {
-        ARLOGe("Error starting tracking thread: empty kpmHandle/imagePtr.\n");
+    imageLumaPtr       = trackingInitHandle->imageLumaPtr;
+    if (!kpmHandle || !imageLumaPtr) {
+        ARLOGe("Error starting tracking thread: empty kpmHandle/imageLumaPtr.\n");
         return (NULL);
     }
     ARLOGi("Start tracking thread.\n");
     
     kpmGetResult( kpmHandle, &kpmResult, &kpmResultNum );
-    
+
     for(;;) {
         if( threadStartWait(threadHandle) < 0 ) break;
-        
-        kpmMatching(kpmHandle, imagePtr);
+
+        ARLOGe("go go go.\n");
+
+        kpmMatching(kpmHandle, imageLumaPtr);
         trackingInitHandle->flag = 0;
         for( i = 0; i < kpmResultNum; i++ ) {
+            
+            ARLOGe("go go go.\n");
+
             if( kpmResult[i].camPoseF != 0 ) continue;
             ARLOGd("kpmGetPose OK.\n");
+
             if( trackingInitHandle->flag == 0 || err > kpmResult[i].error ) { // Take the first or best result.
                 trackingInitHandle->flag = 1;
                 trackingInitHandle->page = kpmResult[i].pageNo;
@@ -193,10 +199,10 @@ static void *trackingInitMain( THREAD_HANDLE_T *threadHandle )
                 err = kpmResult[i].error;
             }
         }
-        
+
         threadEndSignal(threadHandle);
     }
-    
+
     ARLOGi("End tracking thread.\n");
     return (NULL);
 }

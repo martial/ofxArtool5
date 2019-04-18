@@ -19,6 +19,9 @@
 #include "trackingSub.h"
 #include "ofxARTNftUtils.h"
 
+#include <AR/video.h>
+#include <AR/videoLuma.h>
+
 #define PAGES_MAX 10
 
 namespace ofxArtool5 {
@@ -71,7 +74,7 @@ namespace ofxArtool5 {
         //SETUP
         bool setupCamera(string pthCamParam, ofVec2f _camSize, ofVec2f _viewportSize, ofPixelFormat pf=OF_PIXELS_RGB);
         
-        void updateMarkerDetection(ARUint8 * arPix);
+        void updateMarkerDetection(ARUint8 * luma, ARUint8 * buffer);
         void updateMarkers();
         
         KpmHandle * kpmHandle;
@@ -93,5 +96,7 @@ namespace ofxArtool5 {
         int detectedPage;
         
         bool bFound;
+        
+        ARVideoLumaInfo * lumaInfo;
     };
 }

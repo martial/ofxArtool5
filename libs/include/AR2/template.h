@@ -89,17 +89,17 @@ AR2Template2T *ar2GenTemplate2 ( int ts1, int ts2 );
 int            ar2FreeTemplate ( AR2TemplateT  *templ  );
 int            ar2FreeTemplate2( AR2Template2T *templ2 );
 
-int ar2SetTemplateSub ( ARParamLT *cparamLT, float  trans[3][4], AR2ImageSetT *imageSet,
+int ar2SetTemplateSub ( const ARParamLT *cparamLT, const float  trans[3][4], AR2ImageSetT *imageSet,
                         AR2FeaturePointsT *featurePoints, int num, int blurLevel,
                         AR2TemplateT *templ );
-int ar2SetTemplate2Sub( ARParamLT *cparamLT, float  trans[3][4], AR2ImageSetT *imageSet,
+int ar2SetTemplate2Sub( const ARParamLT *cparamLT, const float  trans[3][4], AR2ImageSetT *imageSet,
                         AR2FeaturePointsT *featurePoints, int num, int blurLevel,
                         AR2Template2T *templ2 );
 #else
 AR2TemplateT  *ar2GenTemplate ( int ts1, int ts2 );
 int            ar2FreeTemplate( AR2TemplateT  *templ  );
 
-int ar2SetTemplateSub ( ARParamLT *cparamLT, float  trans[3][4], AR2ImageSetT *imageSet,
+int ar2SetTemplateSub ( const ARParamLT *cparamLT, const float  trans[3][4], AR2ImageSetT *imageSet,
                         AR2FeaturePointsT *featurePoints, int num,
                         AR2TemplateT *templ );
 #endif
@@ -117,8 +117,8 @@ int ar2GetBestMatching2( ARUint8 *img, ARUint8 *mfImage, int xsize, int ysize, A
 int ar2GetBestMatching2(void);
 #endif
 
-int ar2GetResolution( ARParamLT *cparamLT, float  trans[3][4], float  pos[2], float  dpi[2] );
-int ar2GetResolution2( ARParam *cparam, float  trans[3][4], float  pos[2], float  dpi[2] );
+int ar2GetResolution( const ARParamLT *cparamLT, const float  trans[3][4], const float  pos[2], float  dpi[2] );
+int ar2GetResolution2( const ARParam *cparam, const float  trans[3][4], const float  pos[2], float  dpi[2] );
 
 // Returns -1 if no template selected, otherwise returns the 0-based index of the selected template
 // and sets 'flag' of the template to 1.

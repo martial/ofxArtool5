@@ -50,18 +50,18 @@
 #ifndef TRACKING_SUB_H
 #define TRACKING_SUB_H
 
-#include <thread_sub.h>
+#include <ARUtil/thread_sub.h> 
 #include <KPM/kpm.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-    
-    THREAD_HANDLE_T *trackingInitInit( KpmHandle *kpmHandle );
-    int trackingInitStart( THREAD_HANDLE_T *threadHandle, ARUint8 *imagePtr );
-    int trackingInitGetResult( THREAD_HANDLE_T *threadHandle, float trans[3][4], int *page );
-    int trackingInitQuit( THREAD_HANDLE_T **threadHandle_p );
-    
+
+THREAD_HANDLE_T *trackingInitInit( KpmHandle *kpmHandle );
+int trackingInitStart( THREAD_HANDLE_T *threadHandle, ARUint8 *imagePtrLuma );
+int trackingInitGetResult( THREAD_HANDLE_T *threadHandle, float trans[3][4], int *page );
+int trackingInitQuit( THREAD_HANDLE_T **threadHandle_p );
+
 #ifdef __cplusplus
 }
 #endif
