@@ -2,10 +2,13 @@
 
 //--------------------------------------------------------------
 void ofApp::setup(){
+    
     ofBackground(0, 0, 0);
     ofSetFrameRate(60);
     
     cam.initGrabber(640, 480);
+    
+    // you'll need to import your AR assets in Resources folder in osx
     art.setup(ofVec2f(640,480),ofVec2f(640,480), OF_PIXELS_BGR, "../Resources/camera_para.dat", "../Resources/config_horses.dat" );
     
     ofAddListener(art.evNewMarker, this, &ofApp::onNewMarker);
@@ -14,17 +17,17 @@ void ofApp::setup(){
 
 //--------------------------------------------------------------
 void ofApp::update(){
+    
     cam.update();
     if(cam.isFrameNew()){
-        
-     
-        
         art.update(cam);
     }
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    
     cam.draw(0, 0);
     
     if(art.isFound()){
