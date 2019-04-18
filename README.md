@@ -1,13 +1,13 @@
 ofxArtool5
 =====================================
 
-OpenFrameworks addon wrapping the functionalities of ArtoolKit 5.4
-This fork provides only NFT based AR
+OpenFrameworks addon wrapping the functionalities of ArtoolKit 5.4 .  
+This fork provides only NFT based AR ( OSX only )
 
 Licence
 -------
 Artoolkit is [LGPLv3](https://github.com/artoolkit/artoolkit5/blob/master/LICENSE.txt), so you can consider my code LGPLv3 too.  
-Copyright (c) 2015 Enrico<naus3a>Viola
+Copyright (c) 2015 Enrico<naus3a>Viola .  
 naus3a@gmail.com
 
 Installation
