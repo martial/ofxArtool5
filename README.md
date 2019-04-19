@@ -18,7 +18,7 @@ For some reason, you have to import you data files into your Resources folder fo
 
 Compatibility
 ------------
-openFrameworks 1.01
+openFrameworks 10.1
 
 
 Known issues
