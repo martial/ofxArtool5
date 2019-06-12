@@ -320,7 +320,7 @@ void NftTracker::updateMarkerDetection(ARUint8 * luma, ARUint8 * buffer){
                // ARLOGe("Tracking lost.\n");
                 detectedPage = -2;
             } else {
-                ARLOGe("Tracked page %d (max %d).\n", detectedPage, surfaceSetCount - 1);
+                //ARLOGe("Tracked page %d (max %d).\n", detectedPage, surfaceSetCount - 1);
             }
         }
         

@@ -1,0 +1,6 @@
+artool5NFTexample/bin/data/*
+artool5NFTexample_image/bin/data/*
+MarkerMakingTool/bin/data/*
+
+*.app
+*.app/*
