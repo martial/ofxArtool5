@@ -8,17 +8,17 @@ void ofApp::setup(){
     ofSetCircleResolution(92);
     
     cam.listDevices();
-    //cam.setDeviceID(1);
+    cam.setDeviceID(1);
     cam.initGrabber(640, 480);
     
     // you'll need to import your AR assets in Resources folder in osx
-    art.setup(ofVec2f(640,480),ofVec2f(640,480), OF_PIXELS_BGR, "../Resources/camera_para.dat", "../Resources/R-209324-1385993173-1537.jpeg_0.cnf" );
+    art.setup(ofVec2f(640,480),ofVec2f(640,480), OF_PIXELS_BGR, "../Resources/camera_para.dat", "../Resources/1200x630bf_0.cnf" );
     
     ofAddListener(art.evNewMarker, this, &ofApp::onNewMarker);
     ofAddListener(art.evLostMarker, this, &ofApp::onLostMarker);
     
     ofSetDataPathRoot("../Resources/");
-    img.load("../Resources/R-209324-1385993173-1537.jpeg_0.jpg");
+    img.load("../Resources/1200x630bf_0.jpg");
     
     ghostImg.load("../Resources/ghost.png");
     
@@ -66,7 +66,7 @@ void ofApp::draw(){
     ofDrawEllipse(img.getWidth() * .5, img.getHeight() * .5, pct * 1000, pct * 1000);
     ofSetColor(255, 255);
 
-   // ghostImg.draw(0.0, 0.0);
+    ghostImg.draw(0.0, 0.0);
 
     maskedFbo.end();
     maskedFbo.getTexture().setAlphaMask(mask.getTexture());
@@ -100,7 +100,7 @@ void ofApp::draw(){
         ofSetColor(255,255,0);
         ofDrawEllipse( img.getWidth(),img.getHeight(), 30, 30);
         
-        for(int i=0; i<100; i++) {
+        for(int i=0; i<2; i++) {
             ofPushMatrix();
             
             // get in the center, so pos of
